@@ -13,6 +13,7 @@ public class DatabaseProperties {
 
     private FirstDb firstDb;
     private SecondDb secondDb;
+    private ThirdDb thirdDb;
 
     @Data
     public static class FirstDb {
