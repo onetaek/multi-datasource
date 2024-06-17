@@ -1,10 +1,14 @@
 package com.example.multidatasource.config;
 
 
+import com.atomikos.icatch.config.UserTransactionService;
+import com.atomikos.icatch.config.UserTransactionServiceImp;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.SystemException;
 import jakarta.transaction.UserTransaction;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -16,7 +20,7 @@ import org.springframework.transaction.jta.JtaTransactionManager;
 public class XaDataSourceConfig {
     public static final String TRANSACTION_MANAGER_BEAN_NAME = "jtaTransactionManager";
 
-    @Bean
+    @Bean(name = "atomikosUserTransactionManager")
     public UserTransactionManager userTransactionManager() throws SystemException {
         UserTransactionManager userTransactionManager = new UserTransactionManager();
         userTransactionManager.setTransactionTimeout(1000);
@@ -25,7 +29,7 @@ public class XaDataSourceConfig {
         return userTransactionManager;
     }
 
-    @Bean
+    @Bean(name = "atomikosUserTransaction")
     public UserTransaction userTransaction() throws SystemException {
         UserTransaction userTransaction = new UserTransactionImp();
         userTransaction.setTransactionTimeout(60000);
@@ -36,8 +40,8 @@ public class XaDataSourceConfig {
     @Primary
     @Bean(name = TRANSACTION_MANAGER_BEAN_NAME)
     public JtaTransactionManager jtaTransactionManager(
-            UserTransactionManager userTransactionManager,
-            UserTransaction userTransaction
+            @Qualifier("atomikosUserTransactionManager") UserTransactionManager userTransactionManager,
+            @Qualifier("atomikosUserTransaction") UserTransaction userTransaction
     ) {
         JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
         jtaTransactionManager.setTransactionManager(userTransactionManager);
